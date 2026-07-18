@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # TradeGuard — AI Governance Platform for Trading & Investment Systems
 
 A working Streamlit app covering four AI governance functions for firms running AI on a trading
@@ -126,3 +127,6 @@ This is a working demo/prototype, not production trading infrastructure or legal
   authentication and role-based access control (this ties back to Q2 in the original governance
   framework — access control — which this project doesn't implement), and persistent multi-user
   storage instead of a local SQLite file.
+=======
+# trageguard
+>>>>>>> 62ac0f54cfc6f6c162779256f3f982abe0c0004d
