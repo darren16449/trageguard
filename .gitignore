@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+tradeguard.db
+tradeguard.db-journal
+.env
+.streamlit/secrets.toml
