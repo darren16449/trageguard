@@ -44,6 +44,15 @@ def render():
         "vendor/model in the trading stack, scores third-party risk, and maps each one to the "
         "regulatory frameworks most likely to apply."
     )
+    with st.expander("New here? What this page actually does"):
+        st.markdown(
+            "**In plain English:** most companies don't build their own AI from scratch - they buy "
+            "it from vendors like OpenAI or Anthropic, or use outside data providers. If one of "
+            "those vendors won't tell you what data trained their model, or refuses to let you audit "
+            "them, that's a hidden risk you've inherited without realizing it. This page is a "
+            "spreadsheet-style checklist of every outside AI/data vendor in use, with a risk score "
+            "and a note on which regulations apply to each one."
+        )
 
     vendors = db.fetch_vendors()
     df = pd.DataFrame(vendors)

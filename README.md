@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # TradeGuard — AI Governance Platform for Trading & Investment Systems
 
 A working Streamlit app covering four AI governance functions for firms running AI on a trading
@@ -45,16 +44,39 @@ mode** with no API key — every LLM-backed response is clearly labeled `(mock m
 LLM responses, paste an Anthropic API key into the sidebar, or set the `ANTHROPIC_API_KEY`
 environment variable before launching. Get a key at https://console.anthropic.com/.
 
+The app is now behind a basic password gate (`auth.py`) so it isn't wide open to anyone who
+reaches the URL. The default demo password is `tradeguard-demo` — set your own before sharing this
+anywhere beyond local testing:
+
+```bash
+TRADEGUARD_PASSWORD=your-own-password streamlit run app.py
+```
+
+This is a single shared password, not real multi-user auth — see "Notes and limitations" below.
+
 Data is stored locally in `tradeguard.db` (SQLite), created automatically on first run with seed
 data for the AI systems inventory and vendor register. If your working directory is on a network
 or FUSE-mounted drive and you hit a "disk I/O error" from SQLite, set `TRADEGUARD_DB_PATH` to a
 path on local disk, e.g. `TRADEGUARD_DB_PATH=/tmp/tradeguard.db streamlit run app.py`.
+
+## Testing
+
+```bash
+pip install -r requirements-dev.txt
+pytest -v
+```
+
+25 tests cover the core logic: trading-decision scoring, red-team verdict classification, vendor
+risk scoring, and regulatory-framework mapping. A GitHub Actions workflow
+(`.github/workflows/test.yml`) runs this suite on every push and pull request against Python
+3.10-3.12.
 
 ## Architecture
 
 ```
 tradeguard/
   app.py                     # Streamlit entry point, sidebar nav, API key config
+  auth.py                    # Basic password gate (single shared password)
   db.py                      # SQLite schema + queries (shared across all 4 modules)
   llm.py                     # Anthropic API wrapper with mock-mode fallback
   modules/
@@ -66,6 +88,9 @@ tradeguard/
     redteam_payloads.py      # Attack library + simulated copilot system prompt
     incident_scenarios.py    # Tabletop scenarios + scoring checklists
     regulatory_mapping.py    # Regulatory framework reference data + risk-tier logic
+  tests/                     # pytest suite (25 tests) + conftest.py temp-db fixture
+  .github/workflows/test.yml # CI: runs the test suite on push/PR
+  LICENSE                    # MIT
 ```
 
 ## Research grounding
@@ -124,9 +149,7 @@ This is a working demo/prototype, not production trading infrastructure or legal
 - The regulatory mapping is an educational reference built from July 2026 research, not a
   compliance determination — verify current obligations with counsel before relying on it.
 - Extending to a real deployment would mean: real market/order data instead of synthetic data,
-  authentication and role-based access control (this ties back to Q2 in the original governance
-  framework — access control — which this project doesn't implement), and persistent multi-user
-  storage instead of a local SQLite file.
-=======
-# trageguard
->>>>>>> 62ac0f54cfc6f6c162779256f3f982abe0c0004d
+  proper per-user authentication and role-based access control (this project now has a single
+  shared password gate via `auth.py`, which closes the most obvious gap but is not real multi-user
+  auth — see Q2 in the original governance framework), and persistent multi-user storage instead
+  of a local SQLite file.

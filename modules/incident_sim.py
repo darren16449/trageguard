@@ -25,6 +25,15 @@ def render():
         "modeled on real trading-AI incidents so your team can rehearse the first 15 minutes "
         "before it happens for real."
     )
+    with st.expander("New here? What this page actually does"):
+        st.markdown(
+            "**In plain English:** a \"tabletop drill\" is a practice fire drill, but for a computer "
+            "problem instead of an actual fire. You're given a realistic story about an AI system "
+            "going wrong (based on real events that happened to real companies), and you have to "
+            "decide what you'd do first, second, and third. It scores your choices against what "
+            "experts consider best practice, so you find the gaps in your plan *before* a real "
+            "incident, not during one."
+        )
 
     scenario_names = {s["id"]: s["name"] for s in SCENARIOS}
     chosen_id = st.selectbox(

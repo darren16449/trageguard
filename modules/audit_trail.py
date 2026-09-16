@@ -86,6 +86,16 @@ def render():
         "This module simulates a momentum signal engine and logs an LLM-generated rationale "
         "for each decision, the way a compliance team would need for an SEC/FINRA inquiry."
     )
+    with st.expander("New here? What this page actually does"):
+        st.markdown(
+            "**In plain English:** imagine a trading robot that buys and sells stocks on its own. "
+            "If it makes a bad trade, someone will eventually ask *\"why did it do that?\"* This page "
+            "makes the robot explain itself every single time, in a sentence a normal person can "
+            "read - instead of a team of engineers spending days digging through code to figure out "
+            "what happened.\n\n"
+            "**\"Moving average\" / \"momentum\"** just means: is the stock's price trending up or "
+            "down lately? That's the (simplified) signal the robot in this demo trades on."
+        )
 
     col1, col2 = st.columns([1, 3])
     with col1:
