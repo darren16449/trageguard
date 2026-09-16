@@ -18,16 +18,22 @@ import streamlit as st
 
 sys.path.insert(0, os.path.dirname(__file__))
 
+import auth
 import db
 import llm
 from modules import audit_trail, redteam, incident_sim, vendor_tracker
 
 st.set_page_config(page_title="TradeGuard - AI Governance for Trading", page_icon="🛡️", layout="wide")
 
+auth.require_login()
+
 db.init_db()
 
 # ---------------------------------------------------------------- sidebar
 with st.sidebar:
+    if st.button("Log out"):
+        st.session_state["authenticated"] = False
+        st.rerun()
     st.title("🛡️ TradeGuard")
     st.caption("AI Governance Platform for Trading & Investment Systems")
 
@@ -62,6 +68,14 @@ with st.sidebar:
 # ---------------------------------------------------------------- pages
 if page == "Overview":
     st.header("TradeGuard: AI Governance for Trading & Investment Systems")
+
+    st.markdown(
+        "**New here? Start with the one-sentence version:** AI is now making real decisions with "
+        "real money in trading firms — buying and selling stocks, giving investment advice, "
+        "answering client questions — and this app is four hands-on checks that catch the ways "
+        "that can go wrong, before a regulator, a hacker, or an angry client finds it first."
+    )
+
     st.markdown(
         "AI is now embedded across the trading lifecycle — signal generation, execution, "
         "robo-advice, and research copilots. Each of those carries a different governance "
@@ -69,18 +83,7 @@ if page == "Overview":
         "firm needs in place, grounded in real regulation and real incidents."
     )
 
-    systems = db.fetch_ai_systems()
-    if systems:
-        st.subheader("AI systems inventory (seeded example)")
-        df = pd.DataFrame(systems)
-        st.dataframe(
-            df[["name", "system_type", "description", "autonomy_level", "risk_classification"]].rename(
-                columns={"name": "System", "system_type": "Type", "description": "Description",
-                         "autonomy_level": "Autonomy", "risk_classification": "Risk"}
-            ),
-            use_container_width=True, hide_index=True,
-        )
-
+    st.subheader("The four checks (pick one from the sidebar to try it)")
     c1, c2, c3, c4 = st.columns(4)
     with c1:
         st.markdown("#### 1. Explainability")
@@ -95,8 +98,27 @@ if page == "Overview":
         st.markdown("#### 4. Vendor Risk")
         st.caption("Do you know every AI vendor/model in your stack, and its regulatory exposure?")
 
+    systems = db.fetch_ai_systems()
+    if systems:
+        st.divider()
+        st.subheader("AI systems inventory (seeded example)")
+        st.caption(
+            "A more technical look at the example trading firm this demo is built around — four AI "
+            "systems already catalogued and risk-classified, the way Module 4 below encourages you "
+            "to do for your own systems."
+        )
+        df = pd.DataFrame(systems)
+        st.dataframe(
+            df[["name", "system_type", "description", "autonomy_level", "risk_classification"]].rename(
+                columns={"name": "System", "system_type": "Type", "description": "Description",
+                         "autonomy_level": "Autonomy", "risk_classification": "Risk"}
+            ),
+            use_container_width=True, hide_index=True,
+        )
+
     st.divider()
     st.subheader("Why this matters (research grounding)")
+    st.caption("The technical evidence behind this project, for anyone who wants to check the sources.")
     st.markdown(
         "- **Knight Capital (2012):** a dormant algorithm flag was reactivated during a deployment "
         "and lost $440M in 45 minutes — the canonical case for kill-switches and deployment review.\n"
@@ -106,8 +128,9 @@ if page == "Overview":
         "- **The SEC's 2026 exam priorities** focus on whether firms have adequate policies to "
         "supervise AI use, after withdrawing its 2023 predictive data analytics rule proposal.\n"
         "- **The EU AI Act** classifies AI systems evaluating creditworthiness as high-risk (Annex III(5)(b)), "
-        "and robo-advisors may qualify depending on their decision-making autonomy — full obligations "
-        "apply to new high-risk systems deployed from August 2026.\n"
+        "and robo-advisors may qualify depending on their decision-making autonomy — the original August "
+        "2026 deadline for these obligations was postponed by the AI Act's 'Digital Omnibus' (approved "
+        "29 June 2026); standalone high-risk Annex III systems now have until December 2, 2027 to comply.\n"
         "- **Deepfake-driven market moves** are a live and growing risk: a fabricated 2023 image "
         "briefly moved Dow futures, and deepfake videos of real executives have been used to push "
         "fake stock recommendations.\n"

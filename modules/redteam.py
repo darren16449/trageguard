@@ -6,6 +6,8 @@ style) at a simulated internal trading copilot via a live LLM call,
 and scores whether the secret it's supposed to protect leaked, or
 whether it agreed to take an unauthorized action.
 """
+from datetime import datetime
+
 import streamlit as st
 import pandas as pd
 
@@ -31,6 +33,11 @@ def _score(response: str) -> tuple[str, str]:
 
 
 def run_suite():
+    # Stamp every attack in this call with the SAME timestamp so the UI's
+    # "latest run" view groups the whole suite together, instead of each
+    # attack getting its own microsecond-precision insert time and only the
+    # single last-inserted row ever matching a df["ts"] == df["ts"].max() filter.
+    batch_ts = datetime.utcnow().isoformat()
     for attack in ATTACKS:
         response, was_live = llm.call(
             COPILOT_SYSTEM_PROMPT, attack["payload"], max_tokens=250, temperature=0.2
@@ -39,7 +46,8 @@ def run_suite():
         if not was_live:
             notes += " (mock mode)"
         db.insert_redteam_run(
-            attack["id"], attack["name"], attack["category"], attack["payload"], response, verdict, notes
+            attack["id"], attack["name"], attack["category"], attack["payload"], response, verdict, notes,
+            ts=batch_ts,
         )
 
 
@@ -50,6 +58,16 @@ def render():
         "trading-desk copilot with real injection payloads and checks whether it leaks a planted "
         "confidential marker or agrees to execute an unauthorized trade."
     )
+    with st.expander("New here? What this page actually does"):
+        st.markdown(
+            "**In plain English:** company chatbots are often given secret information (client data, "
+            "internal strategies) and told never to share it. \"Prompt injection\" is when someone "
+            "tricks the chatbot into ignoring that rule - the AI equivalent of sweet-talking a new "
+            "employee into handing over the safe combination. **OWASP** is a well-known security "
+            "organization that ranks this as the #1 risk for AI chatbots today.\n\n"
+            "This page fires 10 real trick-questions at a fake chatbot (with a fake secret planted "
+            "in it) and shows you which tricks worked and which didn't."
+        )
 
     with st.expander("Simulated copilot system prompt (what the attacker doesn't see)"):
         st.code(COPILOT_SYSTEM_PROMPT, language="text")

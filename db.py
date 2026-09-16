@@ -152,12 +152,15 @@ def fetch_audit_log(limit=200):
         return [dict(r) for r in rows]
 
 
-def insert_redteam_run(attack_id, attack_name, category, payload, response, verdict, notes=""):
+def insert_redteam_run(attack_id, attack_name, category, payload, response, verdict, notes="", ts=None):
+    """ts lets callers stamp every attack in one run_suite() batch with the same
+    timestamp, so the UI can group/filter a full suite run together instead of
+    only ever matching the single most-recently-inserted row."""
     with get_conn() as conn:
         conn.execute(
             "INSERT INTO redteam_runs (ts, attack_id, attack_name, category, payload, response, verdict, notes) "
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            (datetime.utcnow().isoformat(), attack_id, attack_name, category, payload, response, verdict, notes),
+            (ts or datetime.utcnow().isoformat(), attack_id, attack_name, category, payload, response, verdict, notes),
         )
 
 
